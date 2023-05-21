@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UI.LoginActivity"
+
+    android:background="#EBEAED"
+
+    android:paddingTop="64dp"
+    android:paddingLeft="32dp"
+    android:paddingRight="32dp"
+
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <ImageView
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:src="@drawable/logo_gpt"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enhanced Generative AI Chatbot"
+        android:layout_marginTop="24dp"
+        android:textSize="24sp"
+        android:textColor="@color/black"/>
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#AFAFAF"
+        android:layout_marginTop="32dp"
+        app:cardCornerRadius="12dp"
+        android:padding="6dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Username"
+            android:textSize="26sp"
+            android:paddingLeft="16dp"
+            android:id="@+id/edt_username"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#AFAFAF"
+        android:layout_marginTop="32dp"
+        app:cardCornerRadius="12dp"
+        android:padding="6dp">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Password"
+            android:textSize="26sp"
+            android:paddingLeft="16dp"
+            android:id="@+id/edt_password"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#EF7A7A"
+        android:text="Login"
+        android:textSize="24dp"
+        android:textAllCaps="false"
+        android:id="@+id/btn_login"/>
+
+
+</LinearLayout>

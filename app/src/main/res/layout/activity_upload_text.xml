@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UI.UploadTextActivity"
+    android:orientation="vertical"
+    android:background="#EBEAED">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#8F9BD6"
+        app:titleTextColor="@color/white"
+        android:theme="@style/ToolbarColoredBackArrow"
+        app:popupTheme="@style/AppTheme.PopupOverlay">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/logo_gpt"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload Text"
+                android:layout_marginTop="12dp"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <EditText
+        android:layout_margin="32dp"
+        android:background="#AFAFAF"
+        android:inputType="textMultiLine"
+        android:lines="8"
+        android:minLines="6"
+        android:gravity="top|start"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:scrollbars="vertical"
+        android:hint="Text Here"
+        />
+
+
+    <Button
+        android:layout_margin="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#EF7A7A"
+        android:text="Upload"
+        android:textSize="24dp"
+        android:textAllCaps="false"
+        android:id="@+id/btn_upload"/>
+
+    <Button
+        android:layout_margin="32dp"
+        android:id="@+id/btn_upload_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:backgroundTint="#AC4040"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textSize="24dp"
+        />
+
+
+</LinearLayout>
