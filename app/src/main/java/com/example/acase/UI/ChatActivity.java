@@ -112,7 +112,7 @@ public class ChatActivity extends AppCompatActivity {
                         .setQuery(query, Chat.class)
                         .build();
 
-        ;
+        
         b.recyclerChatCA.setLayoutManager(layoutManager);
 
 
@@ -137,6 +137,7 @@ public class ChatActivity extends AppCompatActivity {
                         playContent(model.getMessage());
                     });
                 }
+
             }
 
             @Override
