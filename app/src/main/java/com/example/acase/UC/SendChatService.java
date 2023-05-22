@@ -10,7 +10,12 @@ import com.example.acase.Model.ChatMessage;
 import com.google.firebase.database.DatabaseReference;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 
 public class SendChatService {
 
@@ -25,24 +30,62 @@ public class SendChatService {
     }
 
     public boolean sendChat(Chat chat) {
+        AtomicBoolean stats = new AtomicBoolean(false);
         boolean validation = validateChat(chat);
         if (validation) {
             Log.d(TAG, "sendChat: validated");
             String ref = sendChatToFirebase(chat);
-            List<ChatMessage> memory = pineconeService.fetchMemory(chat);
-            boolean status = aiResponseService.getResponse(chat, memory);
-            if (status) {
-                try {
-                    pineconeService.sendChatToPinecone(chat, ref);
-                } catch (IOException e) {
-                    Log.d(TAG, "sendChatService: sendChatToPinecone is problematic " + e.getMessage());
-                }
-                Log.d(TAG, "sendChat: response received");
-                return true;
-            }
+            pineconeService.fetchMemory(chat)
+                    .subscribe(new SingleObserver<List<ChatMessage>>() {
+                                                            @Override
+                                                            public void onSubscribe(Disposable d) {
+
+                                                            }
+
+                                                            @Override
+                                                            public void onSuccess(List<ChatMessage> messageList) {
+                                                                if (!messageList.isEmpty()) {
+                                                                    for (ChatMessage mes: messageList) {
+                                                                        Log.d(TAG, "sendChat: " + mes.getContent());
+                                                                    }
+                                                                }
+                                                                boolean status = aiResponseService.getResponse(chat, messageList);
+                                                                if (status) {
+                                                                    try {
+                                                                        pineconeService.sendChatToPinecone(chat, ref);
+                                                                        stats.set(true);
+                                                                    } catch (IOException e) {
+                                                                        Log.d(TAG, "sendChatService: sendChatToPinecone is problematic " + e.getMessage());
+                                                                    }
+                                                                    Log.d(TAG, "sendChat: response received");
+
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onError(Throwable e) {
+                                                                Log.d(TAG, "onError: ");
+                                                                boolean status = aiResponseService.getResponse(chat, new ArrayList<>());
+                                                                if (status) {
+                                                                    try {
+                                                                        pineconeService.sendChatToPinecone(chat, ref);
+                                                                        stats.set(true);
+                                                                    } catch (IOException ex) {
+                                                                        Log.d(TAG, "sendChatService: sendChatToPinecone is problematic " + ex.getMessage());
+                                                                    }
+                                                                    Log.d(TAG, "sendChat: response received");
+
+                                                                }
+                                                            }
+                                                        }
+
+            );
         }
-        return false;
+        return stats.get();
     }
+
+
+
 
     private boolean validateChat(Chat chat) {
         return chat.getMessage().length() < MAX_CHARACTERS_ALLOWED;

@@ -2,6 +2,7 @@ package com.example.acase.UC;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import com.example.acase.Model.ChatMessage;
 import com.example.acase.Model.Match;
 import com.example.acase.Model.Metadata;
 import com.example.acase.Model.RequestModelPinecone;
+import com.example.acase.Model.ResponseModelPinecone;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -27,6 +29,9 @@ import java.util.ArrayList;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -71,86 +76,65 @@ public class PineconeService {
         pineconeApiService = retrofit.create(PineconeApiService.class);
     }
 
-    public List<ChatMessage> fetchMemory(Chat chat) {
+    @SuppressLint("CheckResult")
+    public Single<List<ChatMessage>> fetchMemory(Chat chat) {
+        return openAiApiClient.vectorizeContent(chat.getMessage())
+                .subscribeOn(Schedulers.io())
+                .flatMap(floats -> {
+                    RequestModelPinecone requestModel = new RequestModelPinecone();
+                    requestModel.setIncludeValues(true);
+                    requestModel.setIncludeMetadata(true);
+                    requestModel.setTopK(10);
+                    requestModel.setVector(floats);
 
-        // fetch vectors -> calculate how many to fetch may, use
-        // get their reference
-        // fetch Chat from FB.
-        // wrap them into a list
+                    return pineconeApiService.sendData(Common.pineconeBaseUrlQuery, Common.pineconeApiKey, requestModel)
+                            .subscribeOn(Schedulers.io());
+                })
+                .flatMap(response -> {
+                    List<Match> matches = response.getMatches();
 
-
-        List<String> refList = new ArrayList<>();
-        ArrayList<ChatMessage> messageList = new ArrayList<>();
-
-
-        // Create the request payload
-        openAiApiClient.vectorizeContent(chat.getMessage())
-                .subscribe(new SingleObserver<Float[]>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.d(TAG, "onSubscribe: f subbed");
+                    List<String> refList = new ArrayList<>();
+                    for (Match match : matches) {
+                        refList.add(match.getId());
                     }
 
-                    @Override
-                    public void onSuccess(Float[] floats) {
-                        Log.d(TAG, "onSuccess: f succs");
-                        Log.d(TAG, "onSuccess: " + Arrays.toString(floats));
+                    List<ChatMessage> messageList = new ArrayList<>();
 
-                        RequestModelPinecone requestModel = new RequestModelPinecone();
-
-                        requestModel.setIncludeValues(true);
-                        requestModel.setIncludeMetadata(true);
-                        requestModel.setTopK(10);
-                        requestModel.setVector(floats);
-
-                        pineconeApiService.sendData(Common.pineconeBaseUrlQuery, Common.pineconeApiKey, requestModel)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(response -> {
-                                    // Process the response
-                                    Log.d(TAG, "response " + response.getMatches().get(0).getId().toString());
-                                    List<Match> matches = response.getMatches();
-                                    Log.d(TAG, "onSuccess: fs succ");
-                                    for (Match match : matches) {
-                                        refList.add(match.getId());
-                                        // Access other fields and perform necessary operations
+                    List<Single<Chat>> singles = refList.stream()
+                            .map(ref -> Single.create(emitter -> {
+                                Log.d(TAG, "fetchMemory: " + ref);
+                                Common.ref.child("Conversations").child(Common.id).child(ref).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        Chat chatFB = snapshot.getValue(Chat.class);
+                                        Log.d(TAG, "onDataChange: " + chatFB.getMessage());
+                                        emitter.onSuccess(chatFB);
                                     }
-                                }, throwable -> {
-                                    // Handle the error
 
-                                    Log.d(TAG, "fs faşl" + throwable.getMessage());
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        emitter.onError(error.toException());
+                                    }
                                 });
-                    }
+                            }).cast(Chat.class))
+                            .collect(Collectors.toList());
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, "onError: fetchmem here" + e.getMessage());
-                    }
-                });
-
-
-        Log.d(TAG, "fetchMemory: came");
-        for (String ref : refList) {
-            Common.ref.child("Conversations").child(ref).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Chat chatFB = snapshot.getValue(Chat.class);
-                    String role;
-                    if (chatFB.getSender() == 0) {role = "user";}
-                    else role = "assistant";
-                    messageList.add(new ChatMessage(role, chatFB.getMessage()));
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-
-        Log.d(TAG, "fetchMemory: " + Arrays.toString(messageList.toArray()));
-        return messageList;
+                    return Single.zip(singles, objects -> {
+                        for (Object object : objects) {
+                            try {
+                                Chat chatFB = (Chat) object;
+                                String role = (chatFB.getSender() == 0) ? "user" : "assistant";
+                                messageList.add(new ChatMessage(role, chatFB.getMessage()));
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error retrieving chat: " + e.getMessage());
+                            }
+                        }
+                        return messageList;
+                    });
+                })
+                .observeOn(AndroidSchedulers.mainThread());
     }
+
 
     public void sendChatToPinecone(Chat chat, String ref) throws IOException {
 
