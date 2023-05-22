@@ -8,10 +8,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.acase.R;
 
+
 public class OwnChatHolder extends RecyclerView.ViewHolder {
 
 
     TextView txtOwnChatMessage;
+
 
 
     public OwnChatHolder(View itemView) {

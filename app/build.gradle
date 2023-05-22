@@ -96,5 +96,7 @@ dependencies {
     implementation 'com.itextpdf:pdfa:8.0.0'
 
 
+    implementation 'com.guolindev.permissionx:permissionx:1.7.1'
+
 
 }

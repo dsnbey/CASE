@@ -45,6 +45,12 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
+/**
+ * Stores words as vectors. Allows infinite memory. Efficient queries (O(logn))
+ * with Hierarchial Navigable Small World Graphs.
+ * Fetching only relevant content while allowing virtually infinite scaling
+ * capabilities allows truly customizable user experience.
+ */
 public class PineconeService {
 
     private static volatile PineconeService instance;

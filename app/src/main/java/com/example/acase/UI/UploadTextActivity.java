@@ -13,6 +13,9 @@ import com.example.acase.databinding.ActivityMemorizationBinding;
 import com.example.acase.databinding.ActivityUploadPdfactivityBinding;
 import com.example.acase.databinding.ActivityUploadTextBinding;
 
+/**
+ * Allows you to upload big chunks of texts for the model to remember later.
+ */
 public class UploadTextActivity extends AppCompatActivity {
 
     ActivityUploadTextBinding b;

@@ -21,6 +21,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 
+/**
+ * Controls the response of openai Api's
+ */
 public class AIResponseService {
 
     private OpenAiApiClient openAiApiClient;
@@ -31,6 +34,9 @@ public class AIResponseService {
         pineconeService = PineconeService.getPineconeService();
     }
 
+    /**
+     * Retrieves response asynchronously. Sends the message to Pinecone + Firebase. Uses OpenAiApiClient.
+     */
     public boolean getResponse(Chat chat, List<ChatMessage> memory) {
         final boolean[] status = {false};
         Single<ChatCompletionResponse> response =  openAiApiClient.getChatCompletions(memory, chat.getMessage());

@@ -10,6 +10,9 @@ import com.example.acase.R;
 import com.example.acase.databinding.ActivityChatBinding;
 import com.example.acase.databinding.ActivityMemorizationBinding;
 
+/**
+ * Directs you to upload text or pdf
+ */
 public class MemorizationActivity extends AppCompatActivity {
 
     ActivityMemorizationBinding b;

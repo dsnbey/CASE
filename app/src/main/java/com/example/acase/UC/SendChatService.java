@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 
+/**
+ * Acts as a facade layer for sending chat. Adds additional concurrency.
+ */
 public class SendChatService {
 
     private PineconeService pineconeService;
@@ -34,7 +37,6 @@ public class SendChatService {
         AtomicBoolean stats = new AtomicBoolean(false);
         boolean validation = validateChat(chat);
         if (validation) {
-            Log.d(TAG, "sendChat: validated");
             String ref = sendChatToFirebase(chat);
             pineconeService.fetchMemory(chat)
                     .subscribe(new SingleObserver<List<ChatMessage>>() {

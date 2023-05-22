@@ -9,14 +9,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.acase.R;
 
+/**
+ * Used by recyclerview (dynamic list)
+ */
 public class AIChatHolder extends RecyclerView.ViewHolder{
 
     TextView txtAIMessage;
-    ImageView imgMic;
 
     public AIChatHolder(@NonNull View itemView) {
         super(itemView);
         txtAIMessage = itemView.findViewById(R.id.txt_ai_chat_message);
-        imgMic = itemView.findViewById(R.id.img_hear_chat);
+
     }
 }

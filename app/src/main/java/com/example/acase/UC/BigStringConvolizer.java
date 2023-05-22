@@ -10,6 +10,9 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.io.IOException;
 
+/**
+ * Batches the String into pieces. Thanks to this feature, model can fetch ONLY THE NEEDED CONTENT from the file.
+ */
 public class BigStringConvolizer {
 
     private final int CONVOLIZE_CONSTANT = 1000;

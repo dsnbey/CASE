@@ -10,6 +10,9 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Url;
 
+/**
+ * Rest Api for Pinecone
+ */
 public interface PineconeApiService {
     @Headers({
             "accept: application/json",

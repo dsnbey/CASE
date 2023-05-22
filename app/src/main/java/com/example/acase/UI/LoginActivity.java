@@ -11,6 +11,9 @@ import android.widget.Toast;
 import com.example.acase.UC.ClientAuth;
 import com.example.acase.databinding.ActivityLoginBinding;
 
+/**
+ * Entry point of application, allows individual experiences.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding b;

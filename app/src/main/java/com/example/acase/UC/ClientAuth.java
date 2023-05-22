@@ -14,6 +14,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Controls Authentication & encryption. Talks to Firebase RTDB.
+ */
 public class ClientAuth {
 
     private static boolean credentialStatus = false;
@@ -60,7 +63,12 @@ public class ClientAuth {
         Common.ref.child("Keys").child(Common.id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Common.openaiApiKey = snapshot.getValue(String.class);
+                Common.EMBEDDING_MODEL_NAME = snapshot.child("EMBEDDING_MODEL_NAME").getValue(String.class);
+                Common.openaiApiKey = snapshot.child("openaiApiKey").getValue(String.class);
+                Common.MODEL = snapshot.child("MODEL").getValue(String.class);
+                Common.pineconeBaseUrlQuery = snapshot.child("pineconeBaseUrlQuery").getValue(String.class);
+                Common.pineconeBaseUrlUpsert = snapshot.child("pineconeBaseUrlUpsert").getValue(String.class);
+                Common.pineconeApiKey = snapshot.child("pineconeKey").getValue(String.class);
             }
 
             @Override

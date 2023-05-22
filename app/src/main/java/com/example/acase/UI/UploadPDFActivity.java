@@ -21,12 +21,15 @@ import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
+
+/**
+ * PDF icon directs you to File storage of the phone. Upon selection, you will be redirected
+ * to this page again. Upload button records the pdf.
+ */
 public class UploadPDFActivity extends AppCompatActivity {
 
     ActivityUploadPdfactivityBinding b;
