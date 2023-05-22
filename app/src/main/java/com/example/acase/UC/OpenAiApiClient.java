@@ -2,27 +2,33 @@ package com.example.acase.UC;
 
 import static android.content.ContentValues.TAG;
 
+import android.media.MediaRecorder;
 import android.util.Log;
 
 import com.example.acase.Common;
+
 import com.example.acase.Model.ChatCompletionRequest;
 import com.example.acase.Model.ChatCompletionResponse;
 import com.example.acase.Model.ChatMessage;
 import com.example.acase.Model.EmbeddingData;
 import com.example.acase.Model.EmbeddingRequest;
-import com.example.acase.Model.EmbeddingResponse;
+import com.example.acase.Model.TranscriptionRequest;
 
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -36,6 +42,7 @@ public class OpenAiApiClient {
 
 
     private static volatile OpenAiApiClient instance;
+
 
     public static synchronized OpenAiApiClient getInstance() {
         if (instance == null) {
@@ -101,5 +108,24 @@ public class OpenAiApiClient {
                     }
                 })
                 .doOnError(throwable -> Log.d(TAG, "onError: ", throwable));
+    }
+
+    public Single<String> transcribeAudio(String apiKey, String filePath, String model) {
+
+
+        TranscriptionRequest request = new TranscriptionRequest(model, filePath);
+        Log.d(TAG, "transcribeAudio: " + filePath);
+
+        return apiService.transcribeAudio("Bearer " + apiKey, "multipart/form-data" ,request)
+                .map(responseBody -> {
+                    // Extract the required data from the response body
+                    String responseString = responseBody.string();
+                    Log.d(TAG, "transcribeAudio: " + responseString);
+                    // Parse the JSON response and extract the "text" field
+                    // Here, you can use a JSON parsing library like Gson or Jackson
+                    // For simplicity, let's assume the response is in the expected format
+                    return responseString;
+                });
+
     }
 }

@@ -11,14 +11,12 @@ import com.example.acase.Common;
 import com.example.acase.Model.Chat;
 import com.example.acase.Model.ChatMessage;
 import com.example.acase.Model.Match;
-import com.example.acase.Model.Metadata;
 import com.example.acase.Model.RequestModelPinecone;
 import com.example.acase.Model.ResponseModelPinecone;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
 
 
 import org.json.JSONArray;
@@ -27,16 +25,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import java.util.Arrays;
+
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -78,60 +73,72 @@ public class PineconeService {
 
     @SuppressLint("CheckResult")
     public Single<List<ChatMessage>> fetchMemory(Chat chat) {
+        Log.d(TAG, "fetchMemory: " + chat.getMessage());
         return openAiApiClient.vectorizeContent(chat.getMessage())
                 .subscribeOn(Schedulers.io())
+                .timeout(60, TimeUnit.SECONDS)
                 .flatMap(floats -> {
                     RequestModelPinecone requestModel = new RequestModelPinecone();
                     requestModel.setIncludeValues(true);
                     requestModel.setIncludeMetadata(true);
-                    requestModel.setTopK(10);
+                    requestModel.setTopK(30);
                     requestModel.setVector(floats);
-
-                    return pineconeApiService.sendData(Common.pineconeBaseUrlQuery, Common.pineconeApiKey, requestModel)
+                    Log.d(TAG, "fetchMemory: 2");
+                    Single<ResponseModelPinecone> res = pineconeApiService.sendData(Common.pineconeBaseUrlQuery, Common.pineconeApiKey, requestModel)
                             .subscribeOn(Schedulers.io());
+                    Log.d(TAG, "fetchMemory: 2.1");
+                    return res;
                 })
                 .flatMap(response -> {
-                    List<Match> matches = response.getMatches();
+                    Log.d(TAG, "resp " + response.getMatches().get(0).getId());
+                            List<Match> matches = response.getMatches();
 
-                    List<String> refList = new ArrayList<>();
-                    for (Match match : matches) {
-                        refList.add(match.getId());
-                    }
-
-                    List<ChatMessage> messageList = new ArrayList<>();
-
-                    List<Single<Chat>> singles = refList.stream()
-                            .map(ref -> Single.create(emitter -> {
-                                Log.d(TAG, "fetchMemory: " + ref);
-                                Common.ref.child("Conversations").child(Common.id).child(ref).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        Chat chatFB = snapshot.getValue(Chat.class);
-                                        Log.d(TAG, "onDataChange: " + chatFB.getMessage());
-                                        emitter.onSuccess(chatFB);
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-                                        emitter.onError(error.toException());
-                                    }
-                                });
-                            }).cast(Chat.class))
-                            .collect(Collectors.toList());
-
-                    return Single.zip(singles, objects -> {
-                        for (Object object : objects) {
-                            try {
-                                Chat chatFB = (Chat) object;
-                                String role = (chatFB.getSender() == 0) ? "user" : "assistant";
-                                messageList.add(new ChatMessage(role, chatFB.getMessage()));
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error retrieving chat: " + e.getMessage());
+                            Log.d(TAG, "fetchMemory: 3");
+                            List<String> refList = new ArrayList<>();
+                            for (Match match : matches) {
+                                refList.add(match.getId());
                             }
+
+                            List<ChatMessage> messageList = new ArrayList<>();
+                            Log.d(TAG, "fetchMemory: 4");
+
+                            List<Single<Chat>> singles = refList.stream()
+                                    .map(ref -> Single.create(emitter -> {
+                                        Log.d(TAG, "fetchMemory: " + ref);
+                                        Common.ref.child("Conversations").child(Common.id).child(ref).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                Chat chatFB = snapshot.getValue(Chat.class);
+                                                Log.d(TAG, "onDataChange: " + chatFB.getMessage());
+                                                emitter.onSuccess(chatFB);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                Log.d(TAG, "onCancelled: " + error.getMessage());
+                                                emitter.onError(error.toException());
+                                            }
+                                        });
+                                    }).cast(Chat.class))
+                                    .collect(Collectors.toList());
+
+
+
+                            return Single.zip(singles, objects -> {
+                                for (Object object : objects) {
+                                    try {
+                                        Chat chatFB = (Chat) object;
+                                        String role = (chatFB.getSender() == 0) ? "user" : "assistant";
+                                        messageList.add(new ChatMessage(role, chatFB.getMessage()));
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "Error retrieving chat: " + e.getMessage());
+                                    }
+                                }
+                                return messageList;
+                            });
                         }
-                        return messageList;
-                    });
-                })
+
+                )
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
@@ -161,7 +168,7 @@ public class PineconeService {
                     RequestBody requestBody = RequestBody.create(mediaType, jsonBody.toString());
 
                     Request request = new Request.Builder()
-                            .url("https://case-1bfe2b5.svc.asia-northeast1-gcp.pinecone.io/vectors/upsert")
+                            .url(Common.pineconeBaseUrlUpsert)
                             .addHeader("accept", "application/json")
                             .addHeader("content-type", "application/json")
                             .addHeader("Api-Key", Common.pineconeApiKey)
@@ -196,6 +203,6 @@ public class PineconeService {
 
                 });
 
-
     }
+
 }

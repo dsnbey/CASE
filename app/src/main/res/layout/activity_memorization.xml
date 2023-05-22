@@ -18,7 +18,8 @@
         android:layout_marginTop="24dp"
         android:textSize="24sp"
         android:textColor="@color/black"
-        android:text="Upload to Memory"/>
+        android:text="Upload to Memory"
+        />
 
     <Button
         android:layout_width="match_parent"

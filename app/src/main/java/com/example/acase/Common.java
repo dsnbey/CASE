@@ -10,7 +10,7 @@ public class Common {
     public static String openaiApiKey = "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";
     public static final String MODEL = "gpt-3.5-turbo";
     public static String pineconeApiKey = "0d6b6c99-ea18-4725-b036-a503901925cb";
-    public static String pineconeBaseUrlUpsert = "https://case-1bfe2b5.svc.asia-northeast1-gcp.pinecone.io/vectors/upsert";
+    public static String pineconeBaseUrlUpsert = "https://case-1bfe2b5.svc.asia-northeast1-gcp.pinecone.io/vectors/upsert/";
     public static String pineconeBaseUrlQuery = "https://case-1bfe2b5.svc.asia-northeast1-gcp.pinecone.io/query/";
     public static final String EMBEDDING_MODEL_NAME = "text-embedding-ada-002";
 

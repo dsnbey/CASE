@@ -46,7 +46,8 @@ public class AIResponseService {
                     @Override
                     public void onSuccess(ChatCompletionResponse chatCompletionResponse) {
                             String responseMessage = chatCompletionResponse.getChoices().get(0).getMessage().getContent();
-                            Chat responseChat = new Chat(1,responseMessage, false );
+                            Chat responseChat = new Chat(1,responseMessage, false , false);
+                            responseChat.setDeepMemory(false);
                             DatabaseReference ref = Common.ref.child("Conversations").child(Common.id).push();
                             ref.setValue(responseChat);
                         try {

@@ -4,11 +4,13 @@ public class Chat {
 
     private int sender; // 1 for API, 0 for user
     private String message;
+    private boolean deepMemory;
 
 
-    public Chat( int sender, String message, boolean isVoice) {
+    public Chat( int sender, String message, boolean isVoice, boolean deepMemory) {
         this.sender = sender;
         this.message = message;
+        this.deepMemory = deepMemory;
 
 
     }
@@ -24,5 +26,9 @@ public class Chat {
     public String getMessage() {
         return message;
     }
+    public void setDeepMemory(boolean b) {deepMemory = b;}
 
+    public boolean isDeepMemory() {
+        return deepMemory;
+    }
 }

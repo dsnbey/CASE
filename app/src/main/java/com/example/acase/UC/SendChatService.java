@@ -30,6 +30,7 @@ public class SendChatService {
     }
 
     public boolean sendChat(Chat chat) {
+        chat.setDeepMemory(false);
         AtomicBoolean stats = new AtomicBoolean(false);
         boolean validation = validateChat(chat);
         if (validation) {
@@ -46,12 +47,14 @@ public class SendChatService {
                                                             public void onSuccess(List<ChatMessage> messageList) {
                                                                 if (!messageList.isEmpty()) {
                                                                     for (ChatMessage mes: messageList) {
-                                                                        Log.d(TAG, "sendChat: " + mes.getContent());
+                                                                        Log.d(TAG, "sendChat message list: " + mes.getContent());
                                                                     }
                                                                 }
+
                                                                 boolean status = aiResponseService.getResponse(chat, messageList);
                                                                 if (status) {
                                                                     try {
+
                                                                         pineconeService.sendChatToPinecone(chat, ref);
                                                                         stats.set(true);
                                                                     } catch (IOException e) {
@@ -64,7 +67,8 @@ public class SendChatService {
 
                                                             @Override
                                                             public void onError(Throwable e) {
-                                                                Log.d(TAG, "onError: ");
+                                                                Log.d(TAG, "onError: no memory: " + e.getMessage());
+
                                                                 boolean status = aiResponseService.getResponse(chat, new ArrayList<>());
                                                                 if (status) {
                                                                     try {
