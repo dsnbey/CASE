@@ -81,7 +81,7 @@ public class PineconeService {
                     RequestModelPinecone requestModel = new RequestModelPinecone();
                     requestModel.setIncludeValues(true);
                     requestModel.setIncludeMetadata(true);
-                    requestModel.setTopK(30);
+                    requestModel.setTopK(20);
                     requestModel.setVector(floats);
                     Log.d(TAG, "fetchMemory: 2");
                     Single<ResponseModelPinecone> res = pineconeApiService.sendData(Common.pineconeBaseUrlQuery, Common.pineconeApiKey, requestModel)

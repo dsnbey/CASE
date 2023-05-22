@@ -7,6 +7,8 @@ android {
     namespace 'com.example.acase'
     compileSdk 33
 
+
+
     packagingOptions {
         pickFirst 'META-INF/DEPENDENCIES'
         pickFirst 'META-INF/INDEX.LIST'
@@ -86,5 +88,13 @@ dependencies {
     implementation 'org.asynchttpclient:async-http-client:3.0.0.Beta2'
 
     implementation 'com.arthenica:mobile-ffmpeg-full:4.4'
+
+    implementation 'com.itextpdf:kernel:8.0.0'
+    implementation 'com.itextpdf:io:8.0.0'
+    implementation 'com.itextpdf:layout:8.0.0'
+    implementation 'com.itextpdf:forms:8.0.0'      // only needed for forms
+    implementation 'com.itextpdf:pdfa:8.0.0'
+
+
 
 }

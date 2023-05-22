@@ -35,6 +35,9 @@ public class UploadTextActivity extends AppCompatActivity {
             Toast.makeText(this, "Sending...", Toast.LENGTH_SHORT).show();
             convolizer.sendFile(b.edtBigText.getText().toString());
             Toast.makeText(this, "Finish!", Toast.LENGTH_SHORT).show();
+            b.edtBigText.setText("");
+            Intent intent = new Intent(UploadTextActivity.this, ChatActivity.class);
+            startActivity(intent);
         });
     }
 }
