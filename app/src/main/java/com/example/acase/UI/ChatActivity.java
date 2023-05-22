@@ -251,34 +251,25 @@ public class ChatActivity extends AppCompatActivity {
             try {
                 Log.d(TAG, "startRecording: p checked");
 
-                // we are here initializing our filename variable
-                // with the path of the recorded audio file.
+
                 Context context = getApplicationContext();
                 File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
                 mFileName = storageDir.getAbsolutePath() + "/AudioRecording1.mp3";
 
-                // below method is used to initialize
-                // the media recorder class
+
                 mRecorder = new MediaRecorder();
 
-                // below method is used to set the audio
-                // source which we are using a mic.
+
                 mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 
-                // below method is used to set
-                // the output format of the audio.
+
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
-                // below method is used to set the
-                // audio encoder for our recorded audio.
                 mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
 
-                // below method is used to set the
-                // output file location for our recorded audio
                 mRecorder.setOutputFile(mFileName);
                 try {
-                    // below method will prepare
-                    // our audio recorder class
+
                     mRecorder.prepare();
                     mRecorder.start();
                 } catch (IOException e) {
@@ -310,12 +301,12 @@ public class ChatActivity extends AppCompatActivity {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                     boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
-                        ;
-                        Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "onRequestPermissionsResult: approved" );
+
                     } else {
 
 
-                        Toast.makeText(getApplicationContext(), "Mic Permission Denied", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Microphone Permission Denied", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;
@@ -341,7 +332,7 @@ public class ChatActivity extends AppCompatActivity {
                         Toast.makeText(ChatActivity.this, "These permissions are denied: ", Toast.LENGTH_LONG).show();
                         for (String  s : deniedList) {
                             b.recordingLyt.setVisibility(View.GONE);
-                            Toast.makeText(ChatActivity.this, s, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(ChatActivity.this, s, Toast.LENGTH_SHORT).show();
                         }
                         String[] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
                         ActivityCompat.requestPermissions(ChatActivity.this, permissions, REQUEST_AUDIO_PERMISSION_CODE);
@@ -355,13 +346,8 @@ public class ChatActivity extends AppCompatActivity {
 
     public void pauseRecording() {
 
-
-        // below method will stop
-        // the audio recording.
         mRecorder.stop();
 
-        // below method will release
-        // the media recorder class.
         mRecorder.release();
         mRecorder = null;
     }
